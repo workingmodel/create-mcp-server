@@ -1,8 +1,16 @@
 {
   "name": "wm-create-mcp-server",
-  "version": "0.1.0",
-  "description": "Scaffold a production-ready MCP server in seconds — typed tools, local inspector, CI included",
-  "keywords": ["mcp", "model-context-protocol", "claude", "ai", "scaffold", "create", "cli"],
+  "version": "0.1.1",
+  "description": "Scaffold a production-ready MCP server in seconds — typed tools, local inspector, CI included. Developed by Working Model Inc.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "ai",
+    "scaffold",
+    "create",
+    "cli"
+  ],
   "author": "Working Model <adam@workingmodel.co>",
   "license": "MIT",
   "homepage": "https://github.com/workingmodel/wm-create-mcp-server#readme",

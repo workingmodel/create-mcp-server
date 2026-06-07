@@ -10,6 +10,9 @@ The fastest way to start building with the [Model Context Protocol](https://mode
 
 Developed by [Working Model Inc](https://workingmodel.co)
 
+[![npm version](https://img.shields.io/npm/v/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
+[![npm downloads](https://img.shields.io/npm/dm/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
+
 ---
 
 ## Quick start
@@ -133,5 +136,8 @@ Examples:
 ---
 
 ## Developed by [Working Model Inc](https://workingmodel.co)
+
+[![npm version](https://img.shields.io/npm/v/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
+[![npm downloads](https://img.shields.io/npm/dm/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
 
 MIT License
