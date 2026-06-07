@@ -3,7 +3,7 @@
 > Scaffold a production-ready MCP server in seconds.
 
 ```bash
-npx create-mcp-server my-server
+npx wm-create-mcp-server my-server
 ```
 
 The fastest way to start building with the [Model Context Protocol](https://modelcontextprotocol.io). Opinionated structure, typed tool definitions with full Zod inference, local inspector harness, and CI included out of the box.
@@ -15,7 +15,7 @@ Developed by [Working Model Inc](https://workingmodel.co)
 ## Quick start
 
 ```bash
-npx create-mcp-server my-server
+npx wm-create-mcp-server my-server
 # → interactive wizard
 # → installs dependencies
 # → ready in < 60 seconds
@@ -114,8 +114,8 @@ After running `npm run build`, add to `~/Library/Application Support/Claude/clau
 ## CLI reference
 
 ```
-npx create-mcp-server [project-name] [flags]
-npx create-mcp-server add tool <tool-name>
+npx wm-create-mcp-server [project-name] [flags]
+npx wm-create-mcp-server add tool <tool-name>
 
 Flags:
   --template, -t  Template to use: minimal, standard (default), full
@@ -124,10 +124,10 @@ Flags:
   --help, -h      Show help
 
 Examples:
-  npx create-mcp-server my-server
-  npx create-mcp-server my-server --yes
-  npx create-mcp-server my-server --template full
-  npx create-mcp-server add tool send-email
+  npx wm-create-mcp-server my-server
+  npx wm-create-mcp-server my-server --yes
+  npx wm-create-mcp-server my-server --template full
+  npx wm-create-mcp-server add tool send-email
 ```
 
 ---

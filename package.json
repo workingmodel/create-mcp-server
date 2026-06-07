@@ -1,5 +1,5 @@
 {
-  "name": "create-mcp-server",
+  "name": "wm-create-mcp-server",
   "version": "0.1.0",
   "description": "Scaffold a production-ready MCP server in seconds — typed tools, local inspector, CI included",
   "keywords": ["mcp", "model-context-protocol", "claude", "ai", "scaffold", "create", "cli"],
@@ -12,6 +12,7 @@
   },
   "type": "module",
   "bin": {
+    "wm-create-mcp-server": "./dist/index.js",
     "create-mcp-server": "./dist/index.js"
   },
   "files": [

@@ -183,7 +183,7 @@ async function main() {
   console.log(kleur.cyan(`    npm run inspector    `) + kleur.gray("# open MCP inspector UI"));
   console.log(kleur.cyan(`    npm run test         `) + kleur.gray("# run tool unit tests\n"));
   console.log(
-    kleur.gray("  Docs: https://github.com/workingmodel/create-mcp-server\n")
+    kleur.gray("  Docs: https://github.com/workingmodel/wm-create-mcp-server\n")
   );
 }
 
