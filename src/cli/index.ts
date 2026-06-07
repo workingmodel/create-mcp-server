@@ -19,9 +19,18 @@ if (args.includes("--help") || args.includes("-h")) {
   process.exit(0);
 }
 
-const nonFlagArgs = args.filter((a) => !a.startsWith("-"));
+const nonFlagArgs = args.filter((a, i) => {
+  if (a.startsWith("-")) return false;
+  const prev = args[i - 1];
+  if (prev === "--template" || prev === "-t") return false;
+  return true;
+});
 const projectNameArg = nonFlagArgs[0];
 const yesFlag = args.includes("--yes") || args.includes("-y");
+const templateFlag = (() => {
+  const idx = args.findIndex((a) => a === "--template" || a === "-t");
+  return idx !== -1 ? args[idx + 1] : undefined;
+})() as "minimal" | "standard" | "full" | undefined;
 
 async function main() {
   console.log();
@@ -50,7 +59,7 @@ async function main() {
   }
 
   let answers = {
-    template: "standard" as "minimal" | "standard" | "full",
+    template: (templateFlag ?? "standard") as "minimal" | "standard" | "full",
     transport: "stdio" as "stdio" | "sse",
     includeResources: false,
     includePrompts: false,

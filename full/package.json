@@ -1,0 +1,33 @@
+{
+  "name": "full",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --out-dir dist",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "validate": "npm run typecheck && npm run test",
+    "docker:build": "docker build -t full .",
+    "docker:run": "docker compose up"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0",
+    "zod-to-json-schema": "^3.23.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.6.0",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
