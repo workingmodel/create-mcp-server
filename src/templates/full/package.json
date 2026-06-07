@@ -4,8 +4,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --watch src/index.ts",
-    "build": "tsup src/index.ts --format esm --out-dir dist",
+    "dev:sse": "tsx --watch src/index.sse.ts",
+    "build": "tsup src/index.ts src/index.sse.ts --format esm --out-dir dist",
     "start": "node dist/index.js",
+    "start:sse": "node dist/index.sse.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

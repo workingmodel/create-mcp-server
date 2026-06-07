@@ -4,6 +4,7 @@ import path from "path";
 import fs from "fs";
 import { scaffold } from "./scaffold.js";
 import { install } from "./install.js";
+import { addTool } from "./add-tool.js";
 
 function readVersion(): string {
   const candidates = [
@@ -18,6 +19,20 @@ function readVersion(): string {
 const VERSION = readVersion();
 
 const args = process.argv.slice(2);
+
+// Subcommand: create-mcp-server add tool <name>
+if (args[0] === "add" && args[1] === "tool") {
+  const toolName = args[2];
+  if (!toolName) {
+    console.error(kleur.red("\n  Usage: create-mcp-server add tool <tool-name>\n"));
+    process.exit(1);
+  }
+  addTool(toolName).catch((err) => {
+    console.error(kleur.red("\n  Error: " + err.message));
+    process.exit(1);
+  });
+  // Exit early — don't run the scaffold wizard
+} else {
 
 if (args.includes("--version") || args.includes("-v")) {
   console.log(VERSION);
@@ -76,6 +91,7 @@ async function main() {
 
   let answers = {
     template: (templateFlag ?? "standard") as Template,
+    transport: "stdio" as "stdio" | "sse",
     includeResources: false,
     includePrompts: false,
     packageManager: "npm" as "npm" | "pnpm" | "bun",
@@ -92,6 +108,16 @@ async function main() {
             { title: "standard  — tool registry, tests, CI", value: "standard" },
             { title: "minimal   — single file, one example tool", value: "minimal" },
             { title: "full      — resources, prompts, auth stub, Docker", value: "full" },
+          ],
+          initial: 0,
+        },
+        {
+          type: "select",
+          name: "transport",
+          message: "Transport",
+          choices: [
+            { title: "stdio  — for Claude Desktop / local clients (recommended)", value: "stdio" },
+            { title: "SSE    — for remote HTTP clients (Cursor, web apps)", value: "sse" },
           ],
           initial: 0,
         },
@@ -138,6 +164,7 @@ async function main() {
     projectName,
     targetDir,
     template: answers.template,
+    transport: answers.transport,
     includeResources: answers.includeResources || answers.template === "full",
     includePrompts: answers.includePrompts || answers.template === "full",
   });
@@ -150,7 +177,9 @@ async function main() {
   console.log(kleur.green("  ✓ Dependencies installed\n"));
   console.log(kleur.bold("  Next steps:\n"));
   console.log(kleur.cyan(`    cd ${projectName}`));
-  console.log(kleur.cyan(`    npm run dev          `) + kleur.gray("# start server in watch mode"));
+  const devCmd = answers.transport === "sse" ? "npm run dev:sse" : "npm run dev     ";
+  const devNote = answers.transport === "sse" ? "# start SSE server (http://localhost:3000/sse)" : "# start server in watch mode";
+  console.log(kleur.cyan(`    ${devCmd}       `) + kleur.gray(devNote));
   console.log(kleur.cyan(`    npm run inspector    `) + kleur.gray("# open MCP inspector UI"));
   console.log(kleur.cyan(`    npm run test         `) + kleur.gray("# run tool unit tests\n"));
   console.log(
@@ -171,10 +200,14 @@ function printHelp() {
     --version, -v   Print version
     --help, -h      Show this help
 
+  ${kleur.bold("Subcommands:")}
+    add tool <name>   Scaffold a new tool file + test in an existing project
+
   ${kleur.bold("Examples:")}
     npx create-mcp-server my-server
     npx create-mcp-server my-server --yes
     npx create-mcp-server my-server --template full
+    npx create-mcp-server add tool get-weather
   `);
 }
 
@@ -182,3 +215,5 @@ main().catch((err) => {
   console.error(kleur.red("\n  Error: " + err.message));
   process.exit(1);
 });
+
+} // end else (not a subcommand)

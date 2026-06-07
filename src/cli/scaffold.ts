@@ -19,12 +19,13 @@ export interface ScaffoldOptions {
   projectName: string;
   targetDir: string;
   template: "minimal" | "standard" | "full";
+  transport: "stdio" | "sse";
   includeResources: boolean;
   includePrompts: boolean;
 }
 
 export function scaffold(options: ScaffoldOptions) {
-  const { projectName, targetDir, template, includeResources, includePrompts } = options;
+  const { projectName, targetDir, template, transport, includeResources, includePrompts } = options;
 
   const vars: Record<string, string> = {
     PROJECT_NAME: projectName,
@@ -38,6 +39,19 @@ export function scaffold(options: ScaffoldOptions) {
   fs.mkdirSync(targetDir, { recursive: true });
 
   copyDir(templateDir, targetDir, vars);
+
+  // SSE transport: swap index.ts with the SSE entry point, remove the stdio one
+  if (transport === "sse" && template !== "minimal") {
+    const sseEntry = path.join(targetDir, "src", "index.sse.ts");
+    const stdioEntry = path.join(targetDir, "src", "index.ts");
+    if (fs.existsSync(sseEntry)) {
+      fs.renameSync(sseEntry, stdioEntry);
+    }
+  } else {
+    // Remove the SSE entry — user chose stdio
+    const sseEntry = path.join(targetDir, "src", "index.sse.ts");
+    if (fs.existsSync(sseEntry)) fs.unlinkSync(sseEntry);
+  }
 
   // optionally layer in resources / prompts from the full template
   if (template === "standard") {
