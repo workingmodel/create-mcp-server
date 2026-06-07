@@ -8,6 +8,8 @@ npx create-mcp-server my-server
 
 The fastest way to start building with the [Model Context Protocol](https://modelcontextprotocol.io). Opinionated structure, typed tool definitions with full Zod inference, local inspector harness, and CI included out of the box.
 
+Developed by [Working Model Inc](https://workingmodel.co)
+
 ---
 
 ## Quick start
@@ -22,8 +24,9 @@ npx create-mcp-server my-server
 ```bash
 cd my-server
 npm run dev          # start server in watch mode
-npm run inspector    # open MCP Inspector UI
+npm run inspector    # build + open MCP Inspector UI
 npm run test         # run unit tests
+npm run validate     # typecheck + tests
 ```
 
 ---
@@ -32,7 +35,7 @@ npm run test         # run unit tests
 
 | Template | What's included |
 |----------|----------------|
-| `standard` (default) | Tool registry, typed `defineTool()`, tests, GitHub Actions CI, inspector harness |
+| `standard` (default) | Tool registry, typed `defineTool()`, tests, inspector harness, SSE entry point |
 | `minimal` | Single `index.ts`, one example tool — maximum flexibility |
 | `full` | Everything in `standard` + MCP resources, prompts, auth stub, Docker |
 
@@ -67,13 +70,27 @@ import { getWeatherTool } from "./get-weather.js";
 export const tools = [echoTool, getWeatherTool];
 ```
 
+Or use the built-in generator — from inside your project:
+
+```bash
+npx create-mcp-server add tool get-weather
+# → creates src/tools/get-weather.ts (typed, with handler stub)
+# → creates src/tools/__tests__/get-weather.test.ts
+# → auto-registers in src/tools/index.ts
+```
+
 ---
 
 ## Transport options
 
 **stdio** (default) — for Claude Desktop, Cursor, Windsurf, and local clients
 
-**SSE** — for remote HTTP clients (use the `full` template with Docker for this)
+**SSE** — for remote HTTP clients. Select SSE in the wizard and your project gets a `node:http` server with session routing at `GET /sse` + `POST /messages`:
+
+```bash
+npm run dev:sse     # start SSE server on http://localhost:3000/sse
+npm run start:sse   # production
+```
 
 ---
 
@@ -94,18 +111,27 @@ After running `npm run build`, add to `~/Library/Application Support/Claude/clau
 
 ---
 
-## CLI flags
+## CLI reference
 
 ```
 npx create-mcp-server [project-name] [flags]
+npx create-mcp-server add tool <tool-name>
 
---yes, -y     Skip prompts, use defaults
---version, -v Print version
---help, -h    Show help
+Flags:
+  --template, -t  Template to use: minimal, standard (default), full
+  --yes, -y       Skip prompts, use defaults
+  --version, -v   Print version
+  --help, -h      Show help
+
+Examples:
+  npx create-mcp-server my-server
+  npx create-mcp-server my-server --yes
+  npx create-mcp-server my-server --template full
+  npx create-mcp-server add tool send-email
 ```
 
 ---
 
-## Built by [Working Model](https://workingmodel.co)
+## Developed by [Working Model Inc](https://workingmodel.co)
 
 MIT License
