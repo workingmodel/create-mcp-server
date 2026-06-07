@@ -1,27 +1,33 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { createRequire } from "module";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
-const { version: CLI_VERSION } = require("../package.json") as { version: string };
+function readCliVersion(): string {
+  const candidates = [
+    path.resolve(__dirname, "../package.json"),   // dist/index.js
+    path.resolve(__dirname, "../../package.json"), // src/cli/scaffold.ts
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return JSON.parse(fs.readFileSync(c, "utf8")).version as string;
+  }
+  return "0.0.0";
+}
+const CLI_VERSION = readCliVersion();
 
 export interface ScaffoldOptions {
   projectName: string;
   targetDir: string;
   template: "minimal" | "standard" | "full";
-  transport: "stdio" | "sse";
   includeResources: boolean;
   includePrompts: boolean;
 }
 
 export function scaffold(options: ScaffoldOptions) {
-  const { projectName, targetDir, template, transport, includeResources, includePrompts } = options;
+  const { projectName, targetDir, template, includeResources, includePrompts } = options;
 
   const vars: Record<string, string> = {
     PROJECT_NAME: projectName,
-    TRANSPORT: transport,
     VERSION: CLI_VERSION,
   };
 

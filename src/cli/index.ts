@@ -2,12 +2,20 @@ import kleur from "kleur";
 import prompts from "prompts";
 import path from "path";
 import fs from "fs";
-import { createRequire } from "module";
 import { scaffold } from "./scaffold.js";
 import { install } from "./install.js";
 
-const require = createRequire(import.meta.url);
-const { version: VERSION } = require("../package.json") as { version: string };
+function readVersion(): string {
+  const candidates = [
+    path.resolve(path.dirname(new URL(import.meta.url).pathname), "../package.json"),
+    path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../package.json"),
+  ];
+  for (const c of candidates) {
+    if (fs.existsSync(c)) return JSON.parse(fs.readFileSync(c, "utf8")).version as string;
+  }
+  return "0.0.0";
+}
+const VERSION = readVersion();
 
 const args = process.argv.slice(2);
 
@@ -32,7 +40,13 @@ const yesFlag = args.includes("--yes") || args.includes("-y");
 const templateFlag = (() => {
   const idx = args.findIndex((a) => a === "--template" || a === "-t");
   return idx !== -1 ? args[idx + 1] : undefined;
-})() as "minimal" | "standard" | "full" | undefined;
+})();
+const VALID_TEMPLATES = ["minimal", "standard", "full"] as const;
+type Template = typeof VALID_TEMPLATES[number];
+if (templateFlag && !VALID_TEMPLATES.includes(templateFlag as Template)) {
+  console.error(kleur.red(`\n  Invalid template "${templateFlag}". Choose: minimal, standard, full.\n`));
+  process.exit(1);
+}
 
 async function main() {
   console.log();
@@ -61,7 +75,7 @@ async function main() {
   }
 
   let answers = {
-    template: (templateFlag ?? "standard") as "minimal" | "standard" | "full",
+    template: (templateFlag ?? "standard") as Template,
     includeResources: false,
     includePrompts: false,
     packageManager: "npm" as "npm" | "pnpm" | "bun",
@@ -124,7 +138,6 @@ async function main() {
     projectName,
     targetDir,
     template: answers.template,
-    transport: "stdio",
     includeResources: answers.includeResources || answers.template === "full",
     includePrompts: answers.includePrompts || answers.template === "full",
   });

@@ -1,4 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 export function registerResources(server: McpServer) {
   // Static resource example
@@ -16,10 +17,10 @@ export function registerResources(server: McpServer) {
     })
   );
 
-  // Dynamic resource example (parameterized URI)
+  // Dynamic resource example (parameterized URI template)
   server.resource(
     "item",
-    new URL("mcp://{{PROJECT_NAME}}/items/{id}"),
+    new ResourceTemplate("mcp://{{PROJECT_NAME}}/items/{id}", { list: undefined }),
     async (uri) => {
       const id = uri.pathname.split("/").pop();
       return {
