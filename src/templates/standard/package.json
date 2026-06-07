@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "inspector": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js",
     "validate": "npm run typecheck && npm run test"
   },
   "dependencies": {

@@ -1,8 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
+const { version: CLI_VERSION } = require("../package.json") as { version: string };
 
 export interface ScaffoldOptions {
   projectName: string;
@@ -19,7 +22,7 @@ export function scaffold(options: ScaffoldOptions) {
   const vars: Record<string, string> = {
     PROJECT_NAME: projectName,
     TRANSPORT: transport,
-    VERSION: "0.1.0",
+    VERSION: CLI_VERSION,
   };
 
   // templates live next to src/ in the package; when running from dist, go up two levels
@@ -35,7 +38,6 @@ export function scaffold(options: ScaffoldOptions) {
     if (includeResources) {
       const resourcesSrc = path.join(templatesRoot, "full", "src", "resources");
       copyDir(resourcesSrc, path.join(targetDir, "src", "resources"), vars);
-      appendToIndexTs(path.join(targetDir, "src", "tools", "index.ts"), "");
     }
     if (includePrompts) {
       const promptsSrc = path.join(templatesRoot, "full", "src", "prompts");
@@ -83,7 +85,3 @@ function applyVars(content: string, vars: Record<string, string>): string {
   return content.replace(/\{\{([A-Z_]+)\}\}/g, (_, key) => vars[key] ?? `{{${key}}}`);
 }
 
-function appendToIndexTs(filePath: string, content: string) {
-  if (!fs.existsSync(filePath) || !content) return;
-  fs.appendFileSync(filePath, content);
-}

@@ -2,10 +2,12 @@ import kleur from "kleur";
 import prompts from "prompts";
 import path from "path";
 import fs from "fs";
+import { createRequire } from "module";
 import { scaffold } from "./scaffold.js";
 import { install } from "./install.js";
 
-const VERSION = "0.1.0";
+const require = createRequire(import.meta.url);
+const { version: VERSION } = require("../package.json") as { version: string };
 
 const args = process.argv.slice(2);
 
@@ -60,7 +62,6 @@ async function main() {
 
   let answers = {
     template: (templateFlag ?? "standard") as "minimal" | "standard" | "full",
-    transport: "stdio" as "stdio" | "sse",
     includeResources: false,
     includePrompts: false,
     packageManager: "npm" as "npm" | "pnpm" | "bun",
@@ -77,16 +78,6 @@ async function main() {
             { title: "standard  — tool registry, tests, CI", value: "standard" },
             { title: "minimal   — single file, one example tool", value: "minimal" },
             { title: "full      — resources, prompts, auth stub, Docker", value: "full" },
-          ],
-          initial: 0,
-        },
-        {
-          type: "select",
-          name: "transport",
-          message: "Transport",
-          choices: [
-            { title: "stdio  — for Claude Desktop / local clients", value: "stdio" },
-            { title: "SSE    — for remote HTTP clients", value: "sse" },
           ],
           initial: 0,
         },
@@ -133,7 +124,7 @@ async function main() {
     projectName,
     targetDir,
     template: answers.template,
-    transport: answers.transport,
+    transport: "stdio",
     includeResources: answers.includeResources || answers.template === "full",
     includePrompts: answers.includePrompts || answers.template === "full",
   });
@@ -162,13 +153,15 @@ function printHelp() {
     npx create-mcp-server [project-name] [flags]
 
   ${kleur.bold("Flags:")}
-    --yes, -y     Skip prompts, use defaults (standard template, stdio, npm)
-    --version, -v Print version
-    --help, -h    Show this help
+    --template, -t  Template to use: minimal, standard (default), full
+    --yes, -y       Skip prompts, use defaults
+    --version, -v   Print version
+    --help, -h      Show this help
 
   ${kleur.bold("Examples:")}
     npx create-mcp-server my-server
     npx create-mcp-server my-server --yes
+    npx create-mcp-server my-server --template full
   `);
 }
 

@@ -12,7 +12,7 @@
   },
   "type": "module",
   "bin": {
-    "create-mcp-server": "./dist/cli/index.js"
+    "create-mcp-server": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "smoke": "node dist/cli/index.js --yes test-project-smoke && rm -rf test-project-smoke"
+    "smoke": "node dist/index.js --yes test-project-smoke && rm -rf test-project-smoke"
   },
   "dependencies": {
     "kleur": "^4.1.5",
