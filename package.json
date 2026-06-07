@@ -1,0 +1,43 @@
+{
+  "name": "create-mcp-server",
+  "version": "0.1.0",
+  "description": "Scaffold a production-ready MCP server in seconds — typed tools, local inspector, CI included",
+  "keywords": ["mcp", "model-context-protocol", "claude", "ai", "scaffold", "create", "cli"],
+  "author": "Working Model <adam@workingmodel.co>",
+  "license": "MIT",
+  "homepage": "https://github.com/workingmodel/create-mcp-server#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/workingmodel/create-mcp-server.git"
+  },
+  "type": "module",
+  "bin": {
+    "create-mcp-server": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "src/templates"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "node dist/cli/index.js --yes test-project-smoke && rm -rf test-project-smoke"
+  },
+  "dependencies": {
+    "kleur": "^4.1.5",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/prompts": "^2.4.9",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
