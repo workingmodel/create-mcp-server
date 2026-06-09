@@ -1,24 +1,25 @@
-# create-mcp-server
+# @workingmodel/create-mcp-server
 
-> Scaffold a production-ready MCP server in seconds.
+Stop wiring up MCP boilerplate by hand. Scaffold a production-ready MCP server with typed tools, local inspector, and CI in under 60 seconds. Developed by [Working Model](https://workingmodel.co).
 
-```bash
-npx wm-create-mcp-server my-server
-```
-
-The fastest way to start building with the [Model Context Protocol](https://modelcontextprotocol.io). Opinionated structure, typed tool definitions with full Zod inference, local inspector harness, and CI included out of the box.
-
-Developed by [Working Model Inc](https://workingmodel.co)
-
-[![npm version](https://img.shields.io/npm/v/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
-[![npm downloads](https://img.shields.io/npm/dm/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
+[![npm version](https://img.shields.io/npm/v/@workingmodel/create-mcp-server)](https://www.npmjs.com/package/@workingmodel/create-mcp-server)
+[![npm downloads](https://img.shields.io/npm/dm/@workingmodel/create-mcp-server)](https://www.npmjs.com/package/@workingmodel/create-mcp-server)
+[![license](https://img.shields.io/npm/l/@workingmodel/create-mcp-server)](LICENSE)
 
 ---
 
-## Quick start
+## Install
 
 ```bash
-npx wm-create-mcp-server my-server
+npx @workingmodel/create-mcp-server my-server
+```
+
+---
+
+## Usage
+
+```bash
+npx @workingmodel/create-mcp-server my-server
 # → interactive wizard
 # → installs dependencies
 # → ready in < 60 seconds
@@ -32,9 +33,7 @@ npm run test         # run unit tests
 npm run validate     # typecheck + tests
 ```
 
----
-
-## Templates
+### Templates
 
 | Template | What's included |
 |----------|----------------|
@@ -42,9 +41,7 @@ npm run validate     # typecheck + tests
 | `minimal` | Single `index.ts`, one example tool — maximum flexibility |
 | `full` | Everything in `standard` + MCP resources, prompts, auth stub, Docker |
 
----
-
-## Typed tools
+### Typed tools
 
 The `defineTool()` helper converts your Zod schema into MCP-compatible JSON Schema automatically, with full TypeScript inference in the handler:
 
@@ -82,9 +79,7 @@ npx create-mcp-server add tool get-weather
 # → auto-registers in src/tools/index.ts
 ```
 
----
-
-## Transport options
+### Transport options
 
 **stdio** (default) — for Claude Desktop, Cursor, Windsurf, and local clients
 
@@ -95,9 +90,7 @@ npm run dev:sse     # start SSE server on http://localhost:3000/sse
 npm run start:sse   # production
 ```
 
----
-
-## Connecting to Claude Desktop
+### Connecting to Claude Desktop
 
 After running `npm run build`, add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
@@ -112,13 +105,11 @@ After running `npm run build`, add to `~/Library/Application Support/Claude/clau
 }
 ```
 
----
-
-## CLI reference
+### CLI reference
 
 ```
-npx wm-create-mcp-server [project-name] [flags]
-npx wm-create-mcp-server add tool <tool-name>
+npx @workingmodel/create-mcp-server [project-name] [flags]
+npx @workingmodel/create-mcp-server add tool <tool-name>
 
 Flags:
   --template, -t  Template to use: minimal, standard (default), full
@@ -127,17 +118,20 @@ Flags:
   --help, -h      Show help
 
 Examples:
-  npx wm-create-mcp-server my-server
-  npx wm-create-mcp-server my-server --yes
-  npx wm-create-mcp-server my-server --template full
-  npx wm-create-mcp-server add tool send-email
+  npx @workingmodel/create-mcp-server my-server
+  npx @workingmodel/create-mcp-server my-server --yes
+  npx @workingmodel/create-mcp-server my-server --template full
+  npx @workingmodel/create-mcp-server add tool send-email
 ```
 
 ---
 
-## Developed by [Working Model Inc](https://workingmodel.co)
+## Why This Exists
 
-[![npm version](https://img.shields.io/npm/v/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
-[![npm downloads](https://img.shields.io/npm/dm/wm-create-mcp-server)](https://www.npmjs.com/package/wm-create-mcp-server)
+Every MCP server starts the same way: copy someone's example repo, rename a few things, wire up transport, figure out why types aren't inferring, add tests later (or not). This scaffolds the boring part correctly so you can start on the part that actually matters — the tools. Opinionated enough to save you an hour, minimal enough to stay out of your way.
 
-MIT License
+---
+
+## More tools →
+
+More tools from Working Model → [workingmodel.co](https://workingmodel.co)
