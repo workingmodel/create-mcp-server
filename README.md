@@ -134,4 +134,4 @@ Every MCP server starts the same way: copy someone's example repo, rename a few 
 
 ## More tools →
 
-More tools from Working Model → [workingmodel.co](https://workingmodel.co)
+More tools from Working Model → [workingmodel.co](https://workingmodel.co) · [npm @workingmodel](https://www.npmjs.com/org/workingmodel)
