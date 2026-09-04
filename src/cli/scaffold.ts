@@ -46,11 +46,19 @@ export function scaffold(options: ScaffoldOptions) {
     const stdioEntry = path.join(targetDir, "src", "index.ts");
     if (fs.existsSync(sseEntry)) {
       fs.renameSync(sseEntry, stdioEntry);
+      // src/index.sse.ts no longer exists post-rename — the dev:sse/start:sse
+      // scripts and the "build" entry that referenced it are now dangling.
+      removeSseScripts(targetDir);
     }
   } else {
     // Remove the SSE entry — user chose stdio
     const sseEntry = path.join(targetDir, "src", "index.sse.ts");
-    if (fs.existsSync(sseEntry)) fs.unlinkSync(sseEntry);
+    if (fs.existsSync(sseEntry)) {
+      fs.unlinkSync(sseEntry);
+      // Same problem in the other direction: dev:sse/start:sse and the
+      // build script's second entry now point at a file that doesn't exist.
+      removeSseScripts(targetDir);
+    }
   }
 
   // optionally layer in resources / prompts from the full template
@@ -64,6 +72,25 @@ export function scaffold(options: ScaffoldOptions) {
       copyDir(promptsSrc, path.join(targetDir, "src", "prompts"), vars);
     }
   }
+}
+
+// Drops the dev:sse/start:sse scripts and trims the now-single-entry-point
+// "build" script's src/index.sse.ts argument from the generated package.json.
+// Called any time src/index.sse.ts no longer exists post-scaffold — for
+// stdio it was deleted outright, for SSE it was renamed to src/index.ts.
+function removeSseScripts(targetDir: string) {
+  const pkgPath = path.join(targetDir, "package.json");
+  if (!fs.existsSync(pkgPath)) return;
+
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+  if (pkg.scripts) {
+    delete pkg.scripts["dev:sse"];
+    delete pkg.scripts["start:sse"];
+    if (typeof pkg.scripts.build === "string") {
+      pkg.scripts.build = pkg.scripts.build.replace(/\s+src\/index\.sse\.ts/, "");
+    }
+  }
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
 }
 
 function findTemplatesRoot(): string {

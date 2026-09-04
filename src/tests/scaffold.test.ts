@@ -77,4 +77,33 @@ describe("scaffold()", () => {
     expect(content).toContain("StdioServerTransport");
     expect(fs.existsSync(path.join(targetDir, "src", "index.sse.ts"))).toBe(false);
   });
+
+  it("stdio transport strips dangling dev:sse/start:sse scripts and the sse build entry", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "standard", ...base_opts });
+    const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), "utf8"));
+    expect(pkg.scripts["dev:sse"]).toBeUndefined();
+    expect(pkg.scripts["start:sse"]).toBeUndefined();
+    expect(pkg.scripts.build).not.toContain("index.sse.ts");
+    expect(pkg.scripts.build).toContain("src/index.ts");
+    // no script in the generated package.json should reference the deleted file
+    for (const script of Object.values(pkg.scripts) as string[]) {
+      expect(script).not.toContain("index.sse.ts");
+    }
+  });
+
+  it("SSE transport strips dangling dev:sse/start:sse scripts and the stale build entry", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "standard", transport: "sse", includeResources: false, includePrompts: false });
+    const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), "utf8"));
+    expect(pkg.scripts["dev:sse"]).toBeUndefined();
+    expect(pkg.scripts["start:sse"]).toBeUndefined();
+    expect(pkg.scripts.build).not.toContain("index.sse.ts");
+    expect(pkg.scripts.build).toContain("src/index.ts");
+    for (const script of Object.values(pkg.scripts) as string[]) {
+      expect(script).not.toContain("index.sse.ts");
+    }
+  });
 });
