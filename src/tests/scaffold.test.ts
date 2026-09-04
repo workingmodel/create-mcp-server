@@ -107,3 +107,72 @@ describe("scaffold()", () => {
     }
   });
 });
+
+describe("scaffold() addMemory", () => {
+  const dirs: string[] = [];
+
+  afterEach(() => {
+    for (const d of dirs) fs.rmSync(d, { recursive: true, force: true });
+    dirs.length = 0;
+  });
+
+  it("wires @workingmodel/agent-memory in for standard when addMemory is true", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "standard", ...base_opts, addMemory: true });
+
+    const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), "utf8"));
+    expect(pkg.dependencies["@workingmodel/agent-memory"]).toBeDefined();
+
+    const gitignore = fs.readFileSync(path.join(targetDir, ".gitignore"), "utf8");
+    expect(gitignore.split("\n")).toContain(".memory/");
+
+    const toolPath = path.join(targetDir, "src", "tools", "memory-snapshot.ts");
+    expect(fs.existsSync(toolPath)).toBe(true);
+    expect(fs.existsSync(path.join(targetDir, "src", "lib", "store.ts"))).toBe(true);
+
+    const index = fs.readFileSync(path.join(targetDir, "src", "tools", "index.ts"), "utf8");
+    expect(index).toContain('import { memorySnapshotTool } from "./memory-snapshot.js";');
+    expect(index).toContain("memorySnapshotTool");
+  });
+
+  it("wires @workingmodel/agent-memory in for full when addMemory is true", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "full", ...base_opts, addMemory: true });
+
+    expect(fs.existsSync(path.join(targetDir, "src", "tools", "memory-snapshot.ts"))).toBe(true);
+    const index = fs.readFileSync(path.join(targetDir, "src", "tools", "index.ts"), "utf8");
+    expect(index).toContain("memorySnapshotTool");
+  });
+
+  it("adds the dependency and gitignore line for minimal, but skips the starter tool (no tools registry to hook into)", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "minimal", ...base_opts, addMemory: true });
+
+    const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), "utf8"));
+    expect(pkg.dependencies["@workingmodel/agent-memory"]).toBeDefined();
+    const gitignore = fs.readFileSync(path.join(targetDir, ".gitignore"), "utf8");
+    expect(gitignore.split("\n")).toContain(".memory/");
+    expect(fs.existsSync(path.join(targetDir, "src", "tools"))).toBe(false);
+  });
+
+  it("does nothing memory-related when addMemory is false or omitted", () => {
+    const base = tmpDir(); dirs.push(base);
+    const targetDir = path.join(base, "my-server");
+    scaffold({ projectName: "my-server", targetDir, template: "standard", ...base_opts });
+
+    const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, "package.json"), "utf8"));
+    expect(pkg.dependencies["@workingmodel/agent-memory"]).toBeUndefined();
+
+    const gitignore = fs.readFileSync(path.join(targetDir, ".gitignore"), "utf8");
+    expect(gitignore).not.toContain(".memory/");
+
+    expect(fs.existsSync(path.join(targetDir, "src", "tools", "memory-snapshot.ts"))).toBe(false);
+    expect(fs.existsSync(path.join(targetDir, "src", "lib", "store.ts"))).toBe(false);
+
+    const index = fs.readFileSync(path.join(targetDir, "src", "tools", "index.ts"), "utf8");
+    expect(index).not.toContain("memorySnapshotTool");
+  });
+});

@@ -90,6 +90,18 @@ npm run dev:sse     # start SSE server on http://localhost:3000/sse
 npm run start:sse   # production
 ```
 
+### Persistent memory (opt-in)
+
+The wizard asks `Add persistent cross-session memory? (agent-memory)` — say yes and your project gets:
+
+- `@workingmodel/agent-memory` added to `dependencies`
+- a `.memory/` line in `.gitignore`
+- a `memory-snapshot` tool (`src/tools/memory-snapshot.ts` + `src/lib/store.ts`) that wraps `MemoryStore.snapshot`/`renderSnapshot` — the "wake-up payload" for an agent picking up a fresh session
+
+Defaults to **no** — this is purely opt-in, and it's not offered for the `minimal` template (there's no `src/tools/` registry to wire it into).
+
+> **Not yet on npm.** `@workingmodel/agent-memory` is built and tested but not published to the registry yet. Opting in wires the dependency and files in correctly, but `npm install` won't actually resolve the package until it's published — point `dependencies["@workingmodel/agent-memory"]` at a local `file:` path (or wait for publish) in the meantime.
+
 ### Connecting to Claude Desktop
 
 After running `npm run build`, add to `~/Library/Application Support/Claude/claude_desktop_config.json`:

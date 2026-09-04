@@ -45,24 +45,7 @@ export async function addTool(toolName: string, cwd = process.cwd()) {
 
   // Append import + registration to src/tools/index.ts
   if (fs.existsSync(indexPath)) {
-    let index = fs.readFileSync(indexPath, "utf8");
-    // Add import after last existing import line
-    const importLine = `import { ${varName} } from "./${fileName}.js";`;
-    if (!index.includes(importLine)) {
-      const lastImport = index.lastIndexOf("\nimport ");
-      const insertAt = index.indexOf("\n", lastImport + 1);
-      index = index.slice(0, insertAt) + "\n" + importLine + index.slice(insertAt);
-    }
-    // Add to tools array
-    index = index.replace(
-      /export const tools[^=]*=\s*\[([^\]]*)\]/s,
-      (match, inner) => {
-        const trimmed = inner.trimEnd();
-        const sep = trimmed.endsWith(",") || trimmed.trim() === "" ? "\n  " : ",\n  ";
-        return match.replace(inner, trimmed + sep + varName + ",\n");
-      }
-    );
-    fs.writeFileSync(indexPath, index, "utf8");
+    registerToolInIndex(indexPath, varName, fileName);
   }
 
   console.log();
@@ -74,6 +57,34 @@ export async function addTool(toolName: string, cwd = process.cwd()) {
   console.log();
   console.log(kleur.gray(`  Edit ${kleur.white(`src/tools/${fileName}.ts`)} to implement your tool.`));
   console.log();
+}
+
+/**
+ * Inserts `import { varName } from "./fileName.js";` after the last existing
+ * import line, and appends `varName` to the `export const tools = [...]`
+ * array, in the given src/tools/index.ts. Shared by `add tool <name>` and
+ * scaffold()'s addMemory starter-tool wiring so there's exactly one way
+ * this file gets edited.
+ */
+export function registerToolInIndex(indexPath: string, varName: string, fileName: string) {
+  let index = fs.readFileSync(indexPath, "utf8");
+  // Add import after last existing import line
+  const importLine = `import { ${varName} } from "./${fileName}.js";`;
+  if (!index.includes(importLine)) {
+    const lastImport = index.lastIndexOf("\nimport ");
+    const insertAt = index.indexOf("\n", lastImport + 1);
+    index = index.slice(0, insertAt) + "\n" + importLine + index.slice(insertAt);
+  }
+  // Add to tools array
+  index = index.replace(
+    /export const tools[^=]*=\s*\[([^\]]*)\]/s,
+    (match, inner) => {
+      const trimmed = inner.trimEnd();
+      const sep = trimmed.endsWith(",") || trimmed.trim() === "" ? "\n  " : ",\n  ";
+      return match.replace(inner, trimmed + sep + varName + ",\n");
+    }
+  );
+  fs.writeFileSync(indexPath, index, "utf8");
 }
 
 function toolTemplate(varName: string, fileName: string): string {

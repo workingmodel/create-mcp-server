@@ -94,6 +94,7 @@ async function main() {
     transport: "stdio" as "stdio" | "sse",
     includeResources: false,
     includePrompts: false,
+    addMemory: false,
     packageManager: "npm" as "npm" | "pnpm" | "bun",
   };
 
@@ -140,6 +141,14 @@ async function main() {
           inactive: "no",
         },
         {
+          type: "toggle",
+          name: "addMemory",
+          message: "Add persistent cross-session memory? (agent-memory)",
+          initial: false,
+          active: "yes",
+          inactive: "no",
+        },
+        {
           type: "select",
           name: "packageManager",
           message: "Package manager",
@@ -167,6 +176,7 @@ async function main() {
     transport: answers.transport,
     includeResources: answers.includeResources || answers.template === "full",
     includePrompts: answers.includePrompts || answers.template === "full",
+    addMemory: answers.addMemory,
   });
 
   console.log(kleur.green("  ✓ Files created"));
@@ -182,6 +192,15 @@ async function main() {
   console.log(kleur.cyan(`    ${devCmd}       `) + kleur.gray(devNote));
   console.log(kleur.cyan(`    npm run inspector    `) + kleur.gray("# open MCP inspector UI"));
   console.log(kleur.cyan(`    npm run test         `) + kleur.gray("# run tool unit tests\n"));
+  if (answers.addMemory) {
+    console.log(
+      kleur.yellow(
+        "  Added a `memory-snapshot` tool wired to @workingmodel/agent-memory. That package isn't\n" +
+        "  published to npm yet, so `npm install` above won't have actually resolved it — swap in a\n" +
+        "  local `file:` dependency (or wait for publish) before this tool will run.\n"
+      )
+    );
+  }
   console.log(
     kleur.gray("  Docs: https://github.com/workingmodel/wm-create-mcp-server\n")
   );

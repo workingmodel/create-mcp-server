@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { registerToolInIndex } from "./add-tool.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 function readCliVersion(): string {
@@ -22,10 +23,13 @@ export interface ScaffoldOptions {
   transport: "stdio" | "sse";
   includeResources: boolean;
   includePrompts: boolean;
+  addMemory?: boolean;
 }
 
+const AGENT_MEMORY_VERSION = "^0.1.0";
+
 export function scaffold(options: ScaffoldOptions) {
-  const { projectName, targetDir, template, transport, includeResources, includePrompts } = options;
+  const { projectName, targetDir, template, transport, includeResources, includePrompts, addMemory = false } = options;
 
   const vars: Record<string, string> = {
     PROJECT_NAME: projectName,
@@ -72,6 +76,63 @@ export function scaffold(options: ScaffoldOptions) {
       copyDir(promptsSrc, path.join(targetDir, "src", "prompts"), vars);
     }
   }
+
+  // opt-in: wire @workingmodel/agent-memory in as a dependency + starter tool
+  if (addMemory) {
+    applyMemoryAddon(targetDir, templatesRoot, template, vars);
+  }
+}
+
+// Adds the @workingmodel/agent-memory dependency, a .gitignore line for its
+// .memory/ storage dir, and (for templates with a src/tools/ registry) a
+// starter `memory-snapshot` tool copied from the addon template source —
+// same copy + registerToolInIndex mechanism `add tool <name>` already uses,
+// so there's one way generated projects get a new tool wired in.
+function applyMemoryAddon(
+  targetDir: string,
+  templatesRoot: string,
+  template: "minimal" | "standard" | "full",
+  vars: Record<string, string>
+) {
+  addPackageDependency(targetDir, "@workingmodel/agent-memory", AGENT_MEMORY_VERSION);
+  addGitignoreLine(targetDir, ".memory/");
+
+  // minimal has no src/tools/ registry or src/lib/ dir to hook into — the
+  // dependency + gitignore line still land, but there's nowhere to install
+  // the starter tool without inventing structure minimal deliberately lacks.
+  if (template === "minimal") return;
+
+  const addonRoot = path.join(templatesRoot, "_addons", "memory", "src");
+  const libDest = path.join(targetDir, "src", "lib");
+  const toolsDest = path.join(targetDir, "src", "tools");
+
+  copyFile(path.join(addonRoot, "lib", "store.ts"), path.join(libDest, "store.ts"), vars);
+  copyFile(path.join(addonRoot, "tools", "memory-snapshot.ts"), path.join(toolsDest, "memory-snapshot.ts"), vars);
+
+  const indexPath = path.join(toolsDest, "index.ts");
+  if (fs.existsSync(indexPath)) {
+    registerToolInIndex(indexPath, "memorySnapshotTool", "memory-snapshot");
+  }
+}
+
+function addPackageDependency(targetDir: string, name: string, version: string) {
+  const pkgPath = path.join(targetDir, "package.json");
+  if (!fs.existsSync(pkgPath)) return;
+
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+  pkg.dependencies = { ...pkg.dependencies, [name]: version };
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
+}
+
+function addGitignoreLine(targetDir: string, line: string) {
+  const gitignorePath = path.join(targetDir, ".gitignore");
+  if (!fs.existsSync(gitignorePath)) return;
+
+  const content = fs.readFileSync(gitignorePath, "utf8");
+  if (content.split("\n").some((l) => l.trim() === line)) return;
+
+  const withTrailingNewline = content.endsWith("\n") ? content : content + "\n";
+  fs.writeFileSync(gitignorePath, withTrailingNewline + line + "\n", "utf8");
 }
 
 // Drops the dev:sse/start:sse scripts and trims the now-single-entry-point
@@ -126,6 +187,13 @@ function copyDir(src: string, dest: string, vars: Record<string, string>) {
       fs.writeFileSync(destPath, content, "utf8");
     }
   }
+}
+
+function copyFile(src: string, dest: string, vars: Record<string, string>) {
+  if (!fs.existsSync(src)) return;
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  const content = applyVars(fs.readFileSync(src, "utf8"), vars);
+  fs.writeFileSync(dest, content, "utf8");
 }
 
 function applyVars(content: string, vars: Record<string, string>): string {
